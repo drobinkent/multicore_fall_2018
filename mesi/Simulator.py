@@ -3,6 +3,7 @@ from random import randint
 import Memory as mem
 import Bus as bus
 import Processor as processor
+from builtins import int
 
 
 
@@ -22,7 +23,7 @@ class Simulator:
         :param processor: processor number (0 to 3)
         :param r_w: 0 for read 1 for write
         :param address: address to access (0 to 3)
-        :return: The result of the specified operation.
+        :return: The result of the svaluepecified operation.
         """
 
         if r_w is 0:
@@ -34,42 +35,16 @@ class Simulator:
         print('P{}: Cache: {}'.format(processor, instruction))
         return instruction
 
-    def random_test(self):
-        instruction = self.instruction(randint(0, 3), randint(0, 1), randint(0, 3))
-        return instruction
 
 
 
 
 
 
-
-def random_test(n):
-    """
-    Performs the specified number of random tests on the MESI simulator.
-    :param n: number of random instructions to perform.
-    :return: None
-    """
-    mesi = Simulator()
-
-    for x in range(n):
-        print("----- INSTRUCTION #{} -----".format(x+1))
-        mesi.random_test()
-        print("STATES: " + str(mesi.bus.status))
-        print("MEM:    " + str(mesi.memory.data))
-    # print("BUS TRANSACTIONS:")
-    # for transaction in mesi.bus.transactions:
-    #     print(transaction)
-
-
-def wikipedia_test():
-    """
-    Performs the operations outlined in "Illustration of MESI protocol operations" on the MESI protocol Wikipedia page.
-
-    :return: None
-    """
-    mesi = Simulator()
-    tests = [
+if __name__ == "__main__":
+    print("Illustrating MESI protcol test based on tests defined in wikipedia page: ")
+    mesi_sim = Simulator()
+    wikipedia_test_suite = [
         [0, 0],
         [0, 1],
         [2, 0],
@@ -79,20 +54,23 @@ def wikipedia_test():
         [1, 0]
     ]
 
-    for n in range(len(tests)):
-        print("----- INSTRUCTION #{} -----".format(n+1))
-        t = tests[n]
-        mesi.instruction(t[0], t[1], 0)
-        print("STATES: " + str(mesi.bus.status))
-        print("MEM:    " + str(mesi.memory.data))
+    for n in range(len(wikipedia_test_suite)):
+        print("----- {} th INSTRUCTION  -----".format(n+1))
+        test_instruction = wikipedia_test_suite[n]
+        mesi_sim.instruction(test_instruction[0], test_instruction[1], randint(0, 3))
+        print("STATES of cache blocks after excetuting the instruction: " + str(mesi_sim.bus.status))
+        print("Data in memory                                         : " + str(mesi_sim.memory.data))
+        
+    print("\n\n\n\n\n\n\n\n Doing a set of random tests. ---")
+    n_as_string = input("How many radom tests you want to generate?")
+    n = int(n_as_string)
 
-    # Uncomment to see bus transactions
-    # print("BUS TRANSACTIONS:")
-    # for transaction in mesi.bus.transactions:
-    #     print(transaction)
 
 
-if __name__ == "__main__":
-    random_test(10)
+    mesi_sim = Simulator()
 
-    # wikipedia_test()
+    for x in range(n):
+        print("----- {} th INSTRUCTION  -----".format(x+1))
+        instruction = mesi_sim.instruction(randint(0, 3), randint(0, 1), randint(0, 3))
+        print("STATES of cache blocks after excetuting the instruction: " + str(mesi_sim.bus.status))
+        print("Data in memory                                         : " + str(mesi_sim.memory.data))
