@@ -10,7 +10,7 @@ class Memory:
     """
 
     def __init__(self):
-        self.__data = [randint(0, 1000) for x in range(4)]
+        self.data = [randint(0, 1000) for x in range(4)]
     
     
     """
@@ -21,7 +21,7 @@ class Memory:
             print("Invalid location: ",location)
             print("Exiting !!!!")
             exit(1) 
-        self.__data[location] = data_to_be_writen
+        self.data[location] = data_to_be_writen
         
     """
     As the data is private variable. This method will be used for reading what is in the "location" 
@@ -33,6 +33,9 @@ class Memory:
             exit(1) 
              
         return self.__data[location] 
+    
+    def get_data(self):
+        return self.data
     
     
     
