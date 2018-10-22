@@ -7,17 +7,9 @@ import Processor as processor
 
 
 class Simulator:
-    """
-    Main MESI simulator class. Can be seen as the chip that contains all of the Processors, Bus, and Memory.
-    """
+   
 
     def __init__(self):
-        """
-        Initializes bus, memory, and processors.
-        """
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-        # logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-
         self.memory = mem.Memory()
         self.bus = bus.Bus(self.memory)
 
@@ -36,21 +28,15 @@ class Simulator:
         """
 
         if r_w is 0:
-            logging.info('P{}: PrRd addr {}'.format(processor, address))
+            print('P{}: PrRd addr {}'.format(processor, address))
             instruction = self.processors[processor].simulate_processor_read(address)
         else:
-            logging.info('P{}: PrWr addr {}'.format(processor, address))
+            print('P{}: PrWr addr {}'.format(processor, address))
             instruction = self.processors[processor].simulate_processor_write(address)
-
-        logging.info('P{}: Cache: {}'.format(processor, instruction))
+        print('P{}: Cache: {}'.format(processor, instruction))
         return instruction
 
     def random_test(self):
-        """
-        Performs a random test on the MESI simulator.
-
-        :return: The result of the instruction.
-        """
         instruction = self.instruction(randint(0, 3), randint(0, 1), randint(0, 3))
         return instruction
 
@@ -69,13 +55,13 @@ def random_test(n):
     mesi = Simulator()
 
     for x in range(n):
-        logging.info("----- INSTRUCTION #{} -----".format(x+1))
+        print("----- INSTRUCTION #{} -----".format(x+1))
         mesi.random_test()
-        logging.info("STATES: " + str(mesi.bus.status))
-        logging.info("MEM:    " + str(mesi.memory.data))
-    # logging.info("BUS TRANSACTIONS:")
+        print("STATES: " + str(mesi.bus.status))
+        print("MEM:    " + str(mesi.memory.data))
+    # print("BUS TRANSACTIONS:")
     # for transaction in mesi.bus.transactions:
-    #     logging.info(transaction)
+    #     print(transaction)
 
 
 def wikipedia_test():
@@ -96,16 +82,16 @@ def wikipedia_test():
     ]
 
     for n in range(len(tests)):
-        logging.info("----- INSTRUCTION #{} -----".format(n+1))
+        print("----- INSTRUCTION #{} -----".format(n+1))
         t = tests[n]
         mesi.instruction(t[0], t[1], 0)
-        logging.info("STATES: " + str(mesi.bus.status))
-        logging.info("MEM:    " + str(mesi.memory.data))
+        print("STATES: " + str(mesi.bus.status))
+        print("MEM:    " + str(mesi.memory.data))
 
     # Uncomment to see bus transactions
-    # logging.info("BUS TRANSACTIONS:")
+    # print("BUS TRANSACTIONS:")
     # for transaction in mesi.bus.transactions:
-    #     logging.info(transaction)
+    #     print(transaction)
 
 
 if __name__ == "__main__":

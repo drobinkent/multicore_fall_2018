@@ -39,7 +39,7 @@ class Processor:
             # Read to the block is a Cache hit
             pass
 
-        logging.info("Value: " + str(self.cache['values'][address]))
+        print("Value: " + str(self.cache['values'][address]))
         return self.cache
 
     def simulate_processor_write(self, address):
@@ -56,14 +56,10 @@ class Processor:
             # If other Caches have copy, they see BusRdX signal and Invalidate their copies.
             # Write into Cache block modifies the value.
             self.cache['values'] = self.bus.transaction([self.processor_id, 'bus_rd_x'])
-
         elif self.cache['state'] is 'S':
             self.bus.transaction([self.processor_id, 'bus_upgr'])
-
         self.cache['state'] = 'M'
-
         self.cache['values'][address] = randint(0, 1000)
-
         return self.cache
     
     
@@ -72,23 +68,18 @@ class Processor:
     def snooper(self, last_transaction):
         """
         Snoops on the bus for changes in the cache.
-
         :return: the states of the item in other caches.
         """
         logging.debug('P{} snooping'.format(self.processor_id))
-
         logging.debug('last_transaction: ' + str(last_transaction))
-
         if last_transaction[0] is not self.processor_id:
             # logging.debug("not issued by self.")
-
             # BusRd
             if last_transaction[1] is "bus_rd":
                 if self.cache['state'] is 'E':
                     logging.debug('BusRd E->S')
                     # Transition to Shared (Since it implies a read taking place in other cache).
                     # Put FlushOpt on bus together with contents of block.
-
                     # logging.debug("Transitioning from E to S")
                     self.cache['state'] = 'S'
                     self.bus.data_block = self.cache['values']
@@ -111,7 +102,6 @@ class Processor:
                     self.cache['state'] = 'S'
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
-
             # BusRdX
             elif last_transaction[1] is 'bus_rd_x':
                 if self.cache['state'] is not 'I':
@@ -121,7 +111,6 @@ class Processor:
                     # Transition to Invalid.
                     # Put FlushOpt on Bus, together with the data from now-invalidated block.
                     self.cache['state'] = 'I'
-
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
             # BusUpgr
@@ -129,5 +118,4 @@ class Processor:
                 if self.cache['state'] is 'S':
                     logging.debug('BusUpgr S->I')
                     self.cache['state'] = 'I'
-
         return self.bus.status
