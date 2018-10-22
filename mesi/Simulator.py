@@ -7,8 +7,6 @@ import Processor as processor
 
 
 class Simulator:
-   
-
     def __init__(self):
         self.memory = mem.Memory()
         self.bus = bus.Bus(self.memory)
