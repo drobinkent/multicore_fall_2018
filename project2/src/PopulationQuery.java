@@ -60,4 +60,14 @@ public class PopulationQuery {
 	public static void main(String[] args) {
 		// FOR YOU
 	}
+
+	public static Pair<Integer, Float> singleInteraction(int w, int s, int e, int n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static void preprocess(String filename, int columns, int rows, int versionNum) {
+		// TODO Auto-generated method stub
+		
+	}
 }
