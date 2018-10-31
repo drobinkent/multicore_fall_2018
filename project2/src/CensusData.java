@@ -1,3 +1,4 @@
+package src;
 
 // just a resizing array for holding the input
 // fields are public for simplicity

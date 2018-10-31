@@ -1,3 +1,4 @@
+package src;
 
 // A class to represent a Rectangle
 // You do not have to use this, but it's quite convenient
