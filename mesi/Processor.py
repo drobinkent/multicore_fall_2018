@@ -1,18 +1,19 @@
-import logging
 from random import randint
+
+
 
 class Processor:
    
 
     def __init__(self, processor_id, bus, memory):
     
-        logging.debug("Initializing processor cache --" + str(id))
+        print("Initializing processor cache --" + str(id))
         self.cache = {'state': 'I', 'values': [0, 0, 0, 0]}  #One block of cache memory for this processor
         self.processor_id = processor_id
         self.bus = bus
         self.bus.all_processors.append(self)
         self.memory = memory
-        logging.debug("Cache contents of the processor are : ",self.cache)
+        print("Cache contents of the processor are : ",self.cache)
 
     def simulate_processor_read(self, address):
         print("Processor-{} has issued a read operation.".format(self.processor_id))
@@ -47,52 +48,48 @@ class Processor:
 
     def snooper(self, last_transaction):
        
-        logging.debug('P{} snooping'.format(self.processor_id))
-        logging.debug('last_transaction: ' + str(last_transaction))
+        print('Processor--{} snooping'.format(self.processor_id))
+        print('current instruction in the bus: ' + str(last_transaction))
         if last_transaction[0] is not self.processor_id:
-            # logging.debug("not issued by self.")
-            # BusRd
+           
             if last_transaction[1] is "bus_rd":
+                print("Instruction type is Bus Read")
                 if self.cache['state'] is 'E':
-                    logging.debug('BusRd E->S')
-                    # Transition to Shared (Since it implies a read taking place in other cache).
-                    # Put FlushOpt on bus together with contents of block.
-                    # logging.debug("Transitioning from E to S")
+                    print("Inside Processor-",self.processor_id, "cache state is transitioning from \"E\" to \"S\"")
                     self.cache['state'] = 'S'
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
+                    print("flush_opt instruction issued for all other processors. ")
 
                 elif self.cache['state'] is 'S':
-                    logging.debug('BusRd S->S')
-                    # No State change (other cache performed read on this block, so still shared).
-                    # May put FlushOpt on bus together with contents of block
-                    # (design choice, which cache with Shared state does this).
+                    print("Inside Processor-",self.processor_id, "cache state is transitioning from \"S\" to \"S\"")
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
+                    print("flush_opt instruction issued for all other processors. ")
+
 
                 elif self.cache['state'] is 'M':
-                    # Transition to (S)Shared.
-                    # Put FlushOpt on Bus with data. Received by sender of BusRd and Memory Controller,
-                    # which writes to Main memory.
-                    logging.debug('BusRd M->S')
-
+                    print("Inside Processor-",self.processor_id, "cache state is transitioning from \"M\" to \"S\"")
                     self.cache['state'] = 'S'
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
+                    print("flush_opt instruction issued for all other processors. ")
+
             # BusRdX
             elif last_transaction[1] is 'bus_rd_x':
+                print("Instruction type is Bus Read_X")
                 if self.cache['state'] is not 'I':
-                    logging.debug("BusRdX has valid copy.")
-                    logging.debug('state was: {}'.format(self.cache['state']))
-                    # If we had a valid copy of the data (E,M,S)
-                    # Transition to Invalid.
-                    # Put FlushOpt on Bus, together with the data from now-invalidated block.
+                    print("BusRdX has valid copy.")
+                    print("Inside Processor-",self.processor_id, "cache state is transitioning from {} to \"I\"".format(self.cache['state']))
                     self.cache['state'] = 'I'
                     self.bus.data_block = self.cache['values']
                     self.bus.transaction([self.processor_id, 'flush_opt'])
+                    print("flush_opt instruction issued for all other processors. ")
+
             # BusUpgr
             elif last_transaction[1] is "bus_upgr":
+                print("Instruction type is Bus UPGR")
                 if self.cache['state'] is 'S':
-                    logging.debug('BusUpgr S->I')
+                    print('BusUpgr S->I')
                     self.cache['state'] = 'I'
         return self.bus.status

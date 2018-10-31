@@ -20,10 +20,8 @@ class Simulator:
         """
         Performs the specified request in the cache.
 
-        :param processor: processor number (0 to 3)
-        :param r_w: 0 for read 1 for write
-        :param address: address to access (0 to 3)
-        :return: The result of the svaluepecified operation.
+        :param processor: numerical id o the processor
+        :param r_w: 0 means processor  read and 1 means  write
         """
 
         if r_w is 0:
