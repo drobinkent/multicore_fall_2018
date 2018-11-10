@@ -214,9 +214,9 @@ public class USMaps{
 		int s = mapPane.getSouth();
 		int e = mapPane.getEast();
 		int n = mapPane.getNorth();
-		//System.out.println(w + ", " + s + ", " + e + ", " + n);
+		System.out.println(w + ", " + s + ", " + e + ", " + n);
 		Pair<Integer,Float> result = PopulationQuery.singleInteraction(w, s, e, n);
-		InteractionPane.displayCensusData(result.getElementA(), result.getElementB());
+		InteractionPane.displayCensusData((Integer)(result.getElementA()), result.getElementB());
 	}
 	
 	public static int getVersionNum(){

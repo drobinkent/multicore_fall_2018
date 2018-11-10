@@ -63,11 +63,18 @@ public class PopulationQuery {
 
 	public static Pair<Integer, Float> singleInteraction(int w, int s, int e, int n) {
 		// TODO Auto-generated method stub
-		return null;
+		Pair< Integer, Float> p  = new Pair(0, 0.0f);
+		return p;
 	}
 
+	/*
+	 * Here we will read the given file and store the data in a CensusDAta object. 
+	 * Then for each version we will store the processed data in a single object. 
+	 * Then when each time a new query comes we will serve the query based in that data
+	 */
 	public static void preprocess(String filename, int columns, int rows, int versionNum) {
 		// TODO Auto-generated method stub
+		System.out.println("File name is "+ filename);
 		
 	}
 }
