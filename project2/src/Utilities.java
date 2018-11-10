@@ -6,7 +6,7 @@ public class Utilities {
 	 * This function iterates over a given set of Census Data and finds what are the corners of those data
 	 */
 	
-	public static float[] findCornerV1(CensusData censusData) {
+	public static float[] findCorner(CensusData censusData) {
 		
 		float upperMost = Integer.MIN_VALUE;
 		float LowerMost = Integer.MAX_VALUE;
