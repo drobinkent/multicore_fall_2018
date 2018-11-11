@@ -78,13 +78,35 @@ public class PopulationQuery {
 		
 			case 1:
 				queryResult = getQueryResulV1(w,s,e,n);
-				break;
+				return queryResult;
 			case 2:
 				break;
 			case 3:
-				//This version is a sequential one but it needs som preprocessing. We need to answer the query from preprocessed data
+				//This version is a sequential one but it needs some preprocessing. We need to answer the query from preprocessed data
+				int totalPopulationInQueryRange = 0;
+			
+				  /* Take the value in the bottom-right corner of the query rectangle.  [s-1][e-1]
+				  *Subtract the value just above the top-right corner(e,n) ==> [n][e] of the query rectangle (or 0 if that is outside the grid).
+				  *Subtract the value just left of the bottom-left corner of the query rectangle (or 0 if that is outside the grid).
+				  * Add the value just above and to the left of the upper-left corner of the query rectangle (or 0 if that is outside the grid).
+				 */
+				totalPopulationInQueryRange= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][e-1];
+				//Subtract the value just above the top-right corner(e,n) { [n][e] in array } ==>
+				//the  point is [n+1][e] in grid ==> [n][e-1] in array
+				if( n == PopulationQuery.rows)  totalPopulationInQueryRange -= 0;
+				else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[n][e-1];
+				//Subtract the value just left of the bottom-left corner(w,s) in grid {[s-1][w-1] in array} of the query rectangle 
+				//it's left is (w-1,s) in grid [s-1][w-2]
+				//(or 0 if that is outside the grid).
+				if( w == 1)  totalPopulationInQueryRange -= 0;
+				else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][w-2];
+				//Add the value just above and to the left of the upper-left corner((w,n) in grid) of the query rectangle 
+				//it's above and left is (w-1, n+1 ) in grid which is [n][w-2] in array 
+				//(or 0 if that is outside the grid).
+				if(( n == PopulationQuery.rows) || (w == 1 ))  totalPopulationInQueryRange += 0;
+				else totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[n][w-2];
+				return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
 				
-				break;
 			case 4:
 				break;
 			case 5:
@@ -93,7 +115,7 @@ public class PopulationQuery {
 				System.out.println("Wrong version number-"+versionNum+"priveded. Exiting!!!");
 				System.exit(0);
 		}
-		return queryResult;
+		return null;
 	}
 
 	
@@ -118,7 +140,7 @@ public class PopulationQuery {
 				
 			}
 		}
-		return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)(totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation));
+		return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));
 	}
 
 
@@ -142,8 +164,8 @@ public class PopulationQuery {
 		System.out.println("File name is "+ filename);
 		if(PopulationQuery.totalCensusData ==null)
 			PopulationQuery.totalCensusData = PopulationQuery.parse(filename);
-		if(totalPopulationInEachBiggerRectangle == null)
-			totalPopulationInEachBiggerRectangle = new int[rows][columns];
+		//if(totalPopulationInEachBiggerRectangle == null)
+		totalPopulationInEachBiggerRectangle = new int[rows][columns];
 
 		System.out.println("Total number of rows parsed from the file is : "+ PopulationQuery.totalCensusData.data_size);
 		PopulationQuery pq = new PopulationQuery();
@@ -159,7 +181,7 @@ public class PopulationQuery {
 				break;
 			case 3:
 				float[] cornerPoints = Utilities.findCorner(PopulationQuery.totalCensusData);
-				pq.findPopulationInEachBiggerRectagnle( rows,columns,  cornerPoints);
+				pq.findPopulationInEachBiggerRectagnle( columns, rows,  cornerPoints);
 				pq.preprocessV3();
 				break;
 			case 4:
@@ -218,6 +240,9 @@ public class PopulationQuery {
 			}else if (colNum == columns){
 				totalPopulationInEachBiggerRectangle[rowNum][colNum - 1] += group.population;
 			}else{
+//				System.out.println("Total column : "+columns+ " -- Total row : "+rows);
+//				System.out.println("Current data points column : "+colNum+ " --  row : "+rowNum);
+
 				totalPopulationInEachBiggerRectangle[rowNum][colNum] += group.population;
 			}
 			//totalPopulation += group.population;
