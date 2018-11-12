@@ -59,6 +59,7 @@ public class PopulationQuery {
 	            System.exit(1);
 			}
         }
+        System.out.println("Total USA population after file parsing is :"+PopulationQuery.totalUsaPopulation);
         return result;
 	}
 
@@ -83,44 +84,31 @@ public class PopulationQuery {
 
 				return queryResult;
 			case 2:
+				int nThreads = Runtime.getRuntime().availableProcessors();
 				float[] cornerPointsV2 = Utilities.findCorner(PopulationQuery.totalCensusData);  //This is needed to be done on parallel mode
-				ForkJoinPool forkJoinPoolForVersion2Query = new ForkJoinPool();
+				ForkJoinPool forkJoinPoolForVersion2Query = new ForkJoinPool(nThreads);
+				try {
 				totalPopulationInQueryRange=forkJoinPoolForVersion2Query.invoke(new RecursivePopulationFinderV2
-						( 0, PopulationQuery.totalCensusData.data_size, PopulationQuery.totalCensusData.data, PopulationQuery.totalCensusData.data_size, 
+						( 0, PopulationQuery.totalCensusData.data_size-1, PopulationQuery.totalCensusData.data, PopulationQuery.totalCensusData.data_size, 
 								columns,rows, cornerPointsV2, w, s,  e, n));
+				}catch (Exception exception) {
+					exception.printStackTrace();
+				}
 				System.out.println("Query Result for V2:"+totalPopulationInQueryRange);
 				return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
 
 			case 3:
+				//This is a sequential O(1) implementeation
 				//This version is a sequential one but it needs some preprocessing. We need to answer the query from preprocessed data
-				
-			
-				  /* Take the value in the bottom-right corner of the query rectangle.  [s-1][e-1]
-				  *Subtract the value just above the top-right corner(e,n) ==> [n][e] of the query rectangle (or 0 if that is outside the grid).
-				  *Subtract the value just left of the bottom-left corner of the query rectangle (or 0 if that is outside the grid).
-				  * Add the value just above and to the left of the upper-left corner of the query rectangle (or 0 if that is outside the grid).
-				 */
-				totalPopulationInQueryRange= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][e-1];
-				//Subtract the value just above the top-right corner(e,n) { [n][e] in array } ==>
-				//the  point is [n+1][e] in grid ==> [n][e-1] in array
-				if( n == PopulationQuery.rows)  totalPopulationInQueryRange -= 0;
-				else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[n][e-1];
-				//Subtract the value just left of the bottom-left corner(w,s) in grid {[s-1][w-1] in array} of the query rectangle 
-				//it's left is (w-1,s) in grid [s-1][w-2]
-				//(or 0 if that is outside the grid).
-				if( w == 1)  totalPopulationInQueryRange -= 0;
-				else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][w-2];
-				//Add the value just above and to the left of the upper-left corner((w,n) in grid) of the query rectangle 
-				//it's above and left is (w-1, n+1 ) in grid which is [n][w-2] in array 
-				//(or 0 if that is outside the grid).
-				if(( n == PopulationQuery.rows) || (w == 1 ))  totalPopulationInQueryRange += 0;
-				else totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[n][w-2];
-				System.out.println("Query Result for V3:"+totalPopulationInQueryRange);
-
-				return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
-				
+				queryResult = PopulationQuery.answerQueryFromPreprocessedGrids(w, s, e, n);
+				System.out.println("Query Result for V3:"+queryResult.getElementA());
+				return queryResult;
 			case 4:
-				break;
+				//This is a PArallel O(1) implementeation
+				//This version is a sequential one but it needs some preprocessing. We need to answer the query from preprocessed data
+				queryResult = PopulationQuery.answerQueryFromPreprocessedGrids(w, s, e, n);
+				System.out.println("Query Result for V4:"+queryResult.getElementA());
+				return queryResult;
 			case 5:
 				break;
 			default:
@@ -130,7 +118,32 @@ public class PopulationQuery {
 		return null;
 	}
 
+	public static Pair<Integer, Float> answerQueryFromPreprocessedGrids(int w , int s , int e , int n ) {
+		  /* Take the value in the bottom-right corner of the query rectangle.  [s-1][e-1]
+		  *Subtract the value just above the top-right corner(e,n) ==> [n][e] of the query rectangle (or 0 if that is outside the grid).
+		  *Subtract the value just left of the bottom-left corner of the query rectangle (or 0 if that is outside the grid).
+		  * Add the value just above and to the left of the upper-left corner of the query rectangle (or 0 if that is outside the grid).
+		 */
+		int totalPopulationInQueryRange= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][e-1];
+		//Subtract the value just above the top-right corner(e,n) { [n][e] in array } ==>
+		//the  point is [n+1][e] in grid ==> [n][e-1] in array
+		if( n == PopulationQuery.rows)  totalPopulationInQueryRange -= 0;
+		else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[n][e-1];
+		//Subtract the value just left of the bottom-left corner(w,s) in grid {[s-1][w-1] in array} of the query rectangle 
+		//it's left is (w-1,s) in grid [s-1][w-2]
+		//(or 0 if that is outside the grid).
+		if( w == 1)  totalPopulationInQueryRange -= 0;
+		else totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[s-1][w-2];
+		//Add the value just above and to the left of the upper-left corner((w,n) in grid) of the query rectangle 
+		//it's above and left is (w-1, n+1 ) in grid which is [n][w-2] in array 
+		//(or 0 if that is outside the grid).
+		if(( n == PopulationQuery.rows) || (w == 1 ))  totalPopulationInQueryRange += 0;
+		else totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[n][w-2];
+		System.out.println("Query Result for V3:"+totalPopulationInQueryRange);
+
+		return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
 	
+	}
 	/*
 	 * Thjis function checks each of the data point  
 	 * Then if the point's index belongs to the given w,s,e,n box then ad it to query answer.
@@ -197,12 +210,27 @@ public class PopulationQuery {
 				break;
 			case 3:
 				float[] cornerPointsV3 = Utilities.findCorner(PopulationQuery.totalCensusData);
+				System.out.println("Corners calculated for V3 ar e: "+cornerPointsV3[0]+", "
+						+cornerPointsV3[1]+", "+cornerPointsV3[2]+", "+cornerPointsV3[3]+".");
 				pq.findPopulationInEachBiggerRectagnle( columns, rows,  cornerPointsV3);
 				pq.preprocessV3();
+				System.out.println("Total population after V3 preprocessing is :"+
+						PopulationQuery.totalPopulationInEachBiggerRectangle[0][columns-1]);
 				break;
 			case 4:
+				float[] cornerPointsV4 = pq.parallelFindCorner();
+				System.out.println("Corners calculated for V4 ar e: "+cornerPointsV4[0]+", "
+						+cornerPointsV4[1]+", "+cornerPointsV4[2]+", "+cornerPointsV4[3]+".");
+				PopulationQuery.totalPopulationInEachBiggerRectangle = pq.parallelBuildGridForV4(cornerPointsV4).getElementB();
+				pq.preprocessV3();
+				System.out.println("Total population after V4 preprocessing is :"+
+						PopulationQuery.totalPopulationInEachBiggerRectangle[0][columns-1]);
+				System.out.println("Total population after V4 preprocessing is :"+
+						pq.parallelBuildGridForV4(cornerPointsV4).getElementA());
 				break;
 			case 5:
+				float[] cornerPointsV5 = pq.parallelFindCorner();
+				
 				break;
 			default:
 				System.out.println("Wrong version number-"+versionNum+"priveded. Exiting!!!");
@@ -211,7 +239,32 @@ public class PopulationQuery {
 		
 		
 	}
+	public Pair<Integer, int[][]> parallelBuildGridForV4(float[] cornerPointsV5){
+		try {
+		ForkJoinPool forkJoinPool = new ForkJoinPool();
+		Pair<Integer, int[][]> returnResult = forkJoinPool.invoke(new RecursiveGridBuilderForV4(0, PopulationQuery.totalCensusData.data_size-1,
+				PopulationQuery.totalCensusData.data, PopulationQuery.totalCensusData.data_size,columns, rows, cornerPointsV5));
+		return returnResult;
+		}catch(Exception e) {
+			System.out.println("Exception in Byilding total population in each grid  parallely."+e.toString());
+			System.exit(0);
+		}
+		return null;
+	}
 
+	
+	public float[] parallelFindCorner(){
+		try {
+		ForkJoinPool forkJoinPool = new ForkJoinPool();
+		float[] corners = forkJoinPool.invoke(new RecursiveCornerFinder(0, PopulationQuery.totalCensusData.data_size-1, 
+				PopulationQuery.totalCensusData.data, PopulationQuery.totalCensusData.data_size));
+		return corners;
+		}catch(Exception e) {
+			System.out.println("Exception in finding coprners parallely."+e.toString());
+			System.exit(0);
+		}
+		return null;
+	}
 	/*
 	 * This method calcutes total population in the bigger rectangles starting from origin (0,0) 
 	 * origin is bottommost leftmost corner in the grid
