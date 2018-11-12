@@ -5,6 +5,8 @@ public class Utilities {
 	public static int CUTOFF_SIZE_V2 =5000; 
 	public static int CUTOFF_SIZE_V4 =100; 
 	public static int CUTOFF_SIZE_V5 =100; 
+	public static int TOTAL_THREADS =4; 
+
 
 	
 	/*
