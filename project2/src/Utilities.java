@@ -2,6 +2,11 @@ package src;
 
 public class Utilities {
 	
+	public static int CUTOFF_SIZE_V2 =100; 
+	public static int CUTOFF_SIZE_V4 =100; 
+	public static int CUTOFF_SIZE_V5 =100; 
+
+	
 	/*
 	 * This function iterates over a given set of Census Data and finds what are the corners of those data
 	 */

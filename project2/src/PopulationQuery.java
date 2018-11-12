@@ -3,6 +3,7 @@ package src;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ForkJoinPool;
 
 public class PopulationQuery {
 	// next four constants are relevant to parsing
@@ -73,17 +74,26 @@ public class PopulationQuery {
 		// TODO Auto-generated method stub
 		Pair< Integer, Float> queryResult  = null;
 		
-		
+		int totalPopulationInQueryRange = 0;
 		switch(versionNum) {
 		
 			case 1:
 				queryResult = getQueryResulV1(w,s,e,n);
+				System.out.println("Query Result for V1:"+queryResult.getElementA());
+
 				return queryResult;
 			case 2:
-				break;
+				float[] cornerPointsV2 = Utilities.findCorner(PopulationQuery.totalCensusData);  //This is needed to be done on parallel mode
+				ForkJoinPool forkJoinPoolForVersion2Query = new ForkJoinPool();
+				totalPopulationInQueryRange=forkJoinPoolForVersion2Query.invoke(new RecursivePopulationFinderV2
+						( 0, PopulationQuery.totalCensusData.data_size, PopulationQuery.totalCensusData.data, PopulationQuery.totalCensusData.data_size, 
+								columns,rows, cornerPointsV2, w, s,  e, n));
+				System.out.println("Query Result for V2:"+totalPopulationInQueryRange);
+				return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
+
 			case 3:
 				//This version is a sequential one but it needs some preprocessing. We need to answer the query from preprocessed data
-				int totalPopulationInQueryRange = 0;
+				
 			
 				  /* Take the value in the bottom-right corner of the query rectangle.  [s-1][e-1]
 				  *Subtract the value just above the top-right corner(e,n) ==> [n][e] of the query rectangle (or 0 if that is outside the grid).
@@ -105,6 +115,8 @@ public class PopulationQuery {
 				//(or 0 if that is outside the grid).
 				if(( n == PopulationQuery.rows) || (w == 1 ))  totalPopulationInQueryRange += 0;
 				else totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[n][w-2];
+				System.out.println("Query Result for V3:"+totalPopulationInQueryRange);
+
 				return new Pair<Integer, Float>(totalPopulationInQueryRange, (float)((totalPopulationInQueryRange/PopulationQuery.totalUsaPopulation)*100));				
 				
 			case 4:
@@ -178,10 +190,14 @@ public class PopulationQuery {
 				 */
 				break;
 			case 2:
+				/*
+				 * Truly speaking I don't see any necessity of preprocessing in version 2.
+				 * Just answer the query and bang!!
+				 */
 				break;
 			case 3:
-				float[] cornerPoints = Utilities.findCorner(PopulationQuery.totalCensusData);
-				pq.findPopulationInEachBiggerRectagnle( columns, rows,  cornerPoints);
+				float[] cornerPointsV3 = Utilities.findCorner(PopulationQuery.totalCensusData);
+				pq.findPopulationInEachBiggerRectagnle( columns, rows,  cornerPointsV3);
 				pq.preprocessV3();
 				break;
 			case 4:
@@ -227,7 +243,7 @@ public class PopulationQuery {
 	 * In this method we only compute total pooulation in a bigger rectangle
 	 */
 	private  void findPopulationInEachBiggerRectagnle(int columns, int rows, float[] cornerPoints) {
-
+		int totalPopulation= 0;
 		for(int i = 0; i < PopulationQuery.totalCensusData.data_size; i++) {
 			CensusGroup group = PopulationQuery.totalCensusData.data[i];
 			int[] index = Utilities.findIndex(group.longitude, group.latitude, cornerPoints, columns, rows);
@@ -245,7 +261,7 @@ public class PopulationQuery {
 
 				totalPopulationInEachBiggerRectangle[rowNum][colNum] += group.population;
 			}
-			//totalPopulation += group.population;
+			totalPopulation += group.population;
 		}
 		
 	}
