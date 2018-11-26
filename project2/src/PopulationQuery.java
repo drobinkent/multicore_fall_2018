@@ -19,6 +19,7 @@ public class PopulationQuery {
 	public static CensusData parse(String filename) {
 		CensusData result = new CensusData();
 		BufferedReader fileIn = null;
+		totalUsaPopulation = 0;
 		try {
 			fileIn = new BufferedReader(new FileReader(filename));
 
@@ -72,6 +73,16 @@ public class PopulationQuery {
 		// FOR YOU
 	}
 
+	
+	public static void printPreprocessedRectangle() {
+
+		for(int i = 0 ; i< rows ; i++) {
+			for (int j = 0; j< columns ; j++) {
+				System.out.print(totalPopulationInEachBiggerRectangle[i][j]+" |");
+			}
+			System.out.println("");
+		}
+	}
 	public static Pair<Integer, Float> singleInteraction(int w, int s, int e, int n, int versionNum) {
 		// TODO Auto-generated method stub
 		Pair<Integer, Float> queryResult = null;
@@ -126,6 +137,7 @@ public class PopulationQuery {
 	}
 
 	public static Pair<Integer, Float> answerQueryFromPreprocessedGrids(int w, int s, int e, int n) {
+		PopulationQuery.printPreprocessedRectangle();
 		/*
 		 * Take the value in the bottom-right corner of the query rectangle. [s-1][e-1]
 		 * Subtract the value just above the top-right corner(e,n) ==> [n][e] of the
@@ -134,7 +146,22 @@ public class PopulationQuery {
 		 * outside the grid). Add the value just above and to the left of the upper-left
 		 * corner of the query rectangle (or 0 if that is outside the grid).
 		 */
-		int totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][e - 1];
+		int totalPopulationInQueryRange =0;
+
+//		int r =s;
+//		int c = e;
+//		if(s==columns) {
+//			r = s-1;
+//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
+//		}
+//		if (e==rows) {
+//			c=e-1;
+//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
+//		}else {
+//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][e - 1];
+//		}
+	totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][e - 1];
+
 		// Subtract the value just above the top-right corner(e,n) { [n][e] in array }
 		// ==>
 		// the point is [n+1][e] in grid ==> [n][e-1] in array
@@ -168,7 +195,7 @@ public class PopulationQuery {
 	/*
 	 * Thjis function checks each of the data point Then if the point's index
 	 * belongs to the given w,s,e,n box then ad it to query answer. Otherwise leave
-	 * it
+	 * 
 	 */
 	private static Pair<Integer, Float> getQueryResulV1(int w, int s, int e, int n) {
 		float[] cornerPoints = Utilities.findCorner(PopulationQuery.totalCensusData);

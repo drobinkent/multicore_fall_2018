@@ -288,6 +288,7 @@ public class MapPane extends JPanel implements Observer{
 			InteractionPane.MapGrid mg = (InteractionPane.MapGrid)o;
 			rows = mg.getRows();
 			columns = mg.getColumns();
+			System.out.println("Total row is "+rows+" Total column is : "+columns);
 			USMaps.pqPreprocess();
 			this.repaint();
 		}
