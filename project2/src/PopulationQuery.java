@@ -239,7 +239,7 @@ public class PopulationQuery {
 			PopulationQuery.totalCensusData = PopulationQuery.parse(filename);
 		// if(totalPopulationInEachBiggerRectangle == null)
 		totalPopulationInEachBiggerRectangle = new int[rows][columns];
-		//PopulationQuery.totalUsaPopulation = 0;
+		PopulationQuery.totalUsaPopulation = 0;
 
 		System.out
 				.println("Total number of rows parsed from the file is : " + PopulationQuery.totalCensusData.data_size);
