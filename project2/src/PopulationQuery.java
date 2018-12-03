@@ -148,43 +148,30 @@ public class PopulationQuery {
 		 */
 		int totalPopulationInQueryRange =0;
 
-//		int r =s;
-//		int c = e;
-//		if(s==columns) {
-//			r = s-1;
-//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
-//		}
-//		if (e==rows) {
-//			c=e-1;
-//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
-//		}else {
-//			totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][e - 1];
-//		}
-	totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][e - 1];
 
-		// Subtract the value just above the top-right corner(e,n) { [n][e] in array }
-		// ==>
-		// the point is [n+1][e] in grid ==> [n][e-1] in array
-		if (n == PopulationQuery.rows)
-			totalPopulationInQueryRange -= 0;
-		else
-			totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[n][e - 1];
-		// Subtract the value just left of the bottom-left corner(w,s) in grid
-		// {[s-1][w-1] in array} of the query rectangle
-		// it's left is (w-1,s) in grid [s-1][w-2]
-		// (or 0 if that is outside the grid).
-		if (w == 1)
-			totalPopulationInQueryRange -= 0;
-		else
-			totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[s - 1][w - 2];
-		// Add the value just above and to the left of the upper-left corner((w,n) in
-		// grid) of the query rectangle
-		// it's above and left is (w-1, n+1 ) in grid which is [n][w-2] in array
-		// (or 0 if that is outside the grid).
-		if ((n == PopulationQuery.rows) || (w == 1))
-			totalPopulationInQueryRange += 0;
-		else
-			totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[n][w - 2];
+	totalPopulationInQueryRange = PopulationQuery.totalPopulationInEachBiggerRectangle[n][e];
+	int r =n;
+	int c = w-1;
+	if (((r<0) && (r>=PopulationQuery.rows) ) || ((c<0) && (c>= PopulationQuery.columns))){
+		System.out.println(" r is :" + r + "| c is :" +c+" -- grid point outside range");
+	}else {
+		totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
+	}
+	 r =s-1;
+	 c = e;
+	 if (((r<0) && (r>=PopulationQuery.rows) ) || ((c<0) && (c>= PopulationQuery.columns))){
+			System.out.println(" r is :" + r + "| c is :" +c+" -- grid point outside range");
+		}else {
+			totalPopulationInQueryRange -= PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
+		}
+	 r =s-1;
+	 c = w-1;
+	 if (((r<0) && (r>=PopulationQuery.rows) ) || ((c<0) && (c>= PopulationQuery.columns))){
+			System.out.println(" r is :" + r + "| c is :" +c+" -- grid point outside range");
+		}else {
+			totalPopulationInQueryRange += PopulationQuery.totalPopulationInEachBiggerRectangle[r][c];
+		}
+		
 		System.out.println("Query Result for V3:" + totalPopulationInQueryRange);
 
 		return new Pair<Integer, Float>(totalPopulationInQueryRange,
@@ -344,24 +331,33 @@ public class PopulationQuery {
 	 */
 	private void preprocessV3() {
 		// TODO Auto-generated method stub
-		int row = totalPopulationInEachBiggerRectangle.length;
-		int col = totalPopulationInEachBiggerRectangle[0].length;
-
-		for (int j = 1; j < col; j++) {
-			totalPopulationInEachBiggerRectangle[row - 1][j] = totalPopulationInEachBiggerRectangle[row - 1][j - 1]
-					+ totalPopulationInEachBiggerRectangle[row - 1][j];
+		for(int i = 0 ; i< rows ; i++) {
+			for (int j = 0; j< columns ; j++) {
+				System.out.print(totalPopulationInEachBiggerRectangle[i][j]+" |");
+			}
+			System.out.println("");
 		}
-		for (int i = row - 2; i >= 0; i--) {
-			totalPopulationInEachBiggerRectangle[i][0] = totalPopulationInEachBiggerRectangle[i + 1][0]
+		
+		
+		int row = PopulationQuery.rows;
+		int col = PopulationQuery.columns;
+		//For first row
+		for (int j = 1; j < col; j++) {
+			totalPopulationInEachBiggerRectangle[0][j] = totalPopulationInEachBiggerRectangle[0][j - 1]
+					+ totalPopulationInEachBiggerRectangle[0][j];
+		}
+		//For first column
+		for (int i = 1; i < row; i++) {
+			totalPopulationInEachBiggerRectangle[i][0] = totalPopulationInEachBiggerRectangle[i - 1][0]
 					+ totalPopulationInEachBiggerRectangle[i][0];
 		}
 		// step2: dp main algorithm
-		for (int i = row - 2; i >= 0; i--) {
+		for (int i = 1; i < row; i++) {
 			for (int j = 1; j < col; j++) {
-				totalPopulationInEachBiggerRectangle[i][j] = totalPopulationInEachBiggerRectangle[i + 1][j]
+				totalPopulationInEachBiggerRectangle[i][j] = totalPopulationInEachBiggerRectangle[i ][j]
 						+ totalPopulationInEachBiggerRectangle[i][j - 1]
-						- totalPopulationInEachBiggerRectangle[i + 1][j - 1]
-						+ totalPopulationInEachBiggerRectangle[i][j];
+						+ totalPopulationInEachBiggerRectangle[i -1][j ]
+						- totalPopulationInEachBiggerRectangle[i-1][j-1];
 			}
 		}
 
@@ -371,6 +367,8 @@ public class PopulationQuery {
 	 * In this method we only compute total pooulation in a bigger rectangle
 	 */
 	private void findPopulationInEachBiggerRectagnle(int columns, int rows, float[] cornerPoints) {
+		
+		
 		int totalPopulation = 0;
 		for (int i = 0; i < PopulationQuery.totalCensusData.data_size; i++) {
 			CensusGroup group = PopulationQuery.totalCensusData.data[i];
