@@ -42,8 +42,8 @@ public class Utilities {
 		float left = corners[2];
 		float right = corners[3];
 
-		float height = (top - bottom)/rows;
-		float width = (right - left)/cols;
+		float height = ((top - bottom)/(rows-1) );
+		float width = ((right - left)/(cols-1)) ;
 
 		int[] index = new int[2];
 		index[0] = (int)((latitude-bottom)/height);

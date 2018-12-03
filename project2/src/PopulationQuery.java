@@ -127,7 +127,7 @@ public class PopulationQuery {
 			return queryResult;
 		case 5:
 			queryResult = PopulationQuery.answerQueryFromPreprocessedGrids(w, s, e, n);
-			System.out.println("Query Result for V4:" + queryResult.getElementA());
+			System.out.println("Query Result for V5:" + queryResult.getElementA());
 			return queryResult;
 		default:
 			System.out.println("Wrong version number-" + versionNum + "priveded. Exiting!!!");
@@ -318,7 +318,7 @@ public class PopulationQuery {
 					PopulationQuery.totalCensusData.data_size, columns, rows, cornerPointsV5));
 			return returnResult;
 		} catch (Exception e) {
-			System.out.println("Exception in Byilding total population in each grid  parallely." + e.toString());
+			System.out.println("Exception in Byilding total population in each grid  parallely." + e);
 			System.exit(0);
 		}
 		return null;
@@ -377,18 +377,19 @@ public class PopulationQuery {
 			int[] index = Utilities.findIndex(group.longitude, group.latitude, cornerPoints, columns, rows);
 			int rowNum = index[0];
 			int colNum = index[1];
-			if (rowNum == rows && colNum == columns) {
-				totalPopulationInEachBiggerRectangle[rowNum - 1][colNum - 1] += group.population;
-			} else if (rowNum == rows) {
-				totalPopulationInEachBiggerRectangle[rowNum - 1][colNum] += group.population;
-			} else if (colNum == columns) {
-				totalPopulationInEachBiggerRectangle[rowNum][colNum - 1] += group.population;
-			} else {
-//				System.out.println("Total column : "+columns+ " -- Total row : "+rows);
-//				System.out.println("Current data points column : "+colNum+ " --  row : "+rowNum);
-
-				totalPopulationInEachBiggerRectangle[rowNum][colNum] += group.population;
-			}
+//			if (rowNum == rows && colNum == columns) {
+//				totalPopulationInEachBiggerRectangle[rowNum - 1][colNum - 1] += group.population;
+//			} else if (rowNum == rows) {
+//				totalPopulationInEachBiggerRectangle[rowNum - 1][colNum] += group.population;
+//			} else if (colNum == columns) {
+//				totalPopulationInEachBiggerRectangle[rowNum][colNum - 1] += group.population;
+//			} else {
+////				System.out.println("Total column : "+columns+ " -- Total row : "+rows);
+////				System.out.println("Current data points column : "+colNum+ " --  row : "+rowNum);
+//
+//				totalPopulationInEachBiggerRectangle[rowNum][colNum] += group.population;
+//			}
+			totalPopulationInEachBiggerRectangle[rowNum][colNum] += group.population;
 			totalPopulation += group.population;
 		}
 
